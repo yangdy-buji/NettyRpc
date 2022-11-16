@@ -5,6 +5,7 @@ import com.netty.rpc.client.proxy.RpcService;
 import com.netty.rpc.client.proxy.ObjectProxy;
 import com.netty.rpc.client.connect.ConnectionManager;
 import com.netty.rpc.client.discovery.ServiceDiscovery;
+import com.netty.rpc.util.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -14,9 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * RPC Client（Create RPC proxy）
@@ -28,8 +27,8 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
 
     private ServiceDiscovery serviceDiscovery;
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
-            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
+
+    private static ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.createThreadPool(RpcClient.class.getSimpleName(), 8, 16);
 
     public RpcClient(String address) {
         this.serviceDiscovery = new ServiceDiscovery(address);
