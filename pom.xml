@@ -22,7 +22,7 @@
         <spring.version>5.2.6.RELEASE</spring.version>
         <jackson.version>2.14.0</jackson.version>
         <curator.version>2.13.0</curator.version>
-        <guava.version>30.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <netty.version>4.1.42.Final</netty.version>
         <protostuff.version>1.0.8</protostuff.version>
         <hessian.version>4.0.63</hessian.version>
