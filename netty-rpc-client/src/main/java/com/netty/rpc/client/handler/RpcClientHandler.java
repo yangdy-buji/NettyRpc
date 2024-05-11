@@ -57,14 +57,16 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     }
 
     public void close() {
-        channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
+                .addListener(ChannelFutureListener.CLOSE);
     }
 
     public RpcFuture sendRequest(RpcRequest request) {
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         try {
-            ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
+            ChannelFuture channelFuture = channel.writeAndFlush(request)
+                    .sync();
             if (!channelFuture.isSuccess()) {
                 logger.error("Send request {} error", request.getRequestId());
             }

@@ -1,6 +1,6 @@
 package com.netty.rpc.server.core;
 
-public  interface Server {
+public interface Server {
     /**
      * start server
      *

@@ -10,19 +10,16 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.AllArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
+@AllArgsConstructor
 public class RpcServerInitializer extends ChannelInitializer<SocketChannel> {
     private Map<String, Object> handlerMap;
     private ThreadPoolExecutor threadPoolExecutor;
 
-    public RpcServerInitializer(Map<String, Object> handlerMap, ThreadPoolExecutor threadPoolExecutor) {
-        this.handlerMap = handlerMap;
-        this.threadPoolExecutor = threadPoolExecutor;
-    }
 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {

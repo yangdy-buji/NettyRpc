@@ -1,11 +1,14 @@
 package com.netty.rpc.protocol;
 
 import com.netty.rpc.util.JsonUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
+@Getter
+@Setter
 public class RpcProtocol implements Serializable {
     private static final long serialVersionUID = -1102180003395190700L;
     // service host
@@ -56,27 +59,4 @@ public class RpcProtocol implements Serializable {
         return toJson();
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public List<RpcServiceInfo> getServices() {
-        return services;
-    }
-
-    public void setServices(List<RpcServiceInfo> services) {
-        this.services = services;
-    }
 }

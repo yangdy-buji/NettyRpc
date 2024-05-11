@@ -37,8 +37,8 @@ public class NettyServer implements Server {
 
     public void start() {
         thread = new Thread(new Runnable() {
-            ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.createThreadPool(
-                    NettyServer.class.getSimpleName(), 16, 32);
+            ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.createThreadPool(NettyServer.class.getSimpleName(),
+                    16, 32);
 
             @Override
             public void run() {
@@ -46,7 +46,8 @@ public class NettyServer implements Server {
                 EventLoopGroup workerGroup = new NioEventLoopGroup();
                 try {
                     ServerBootstrap bootstrap = new ServerBootstrap();
-                    bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                    bootstrap.group(bossGroup, workerGroup)
+                            .channel(NioServerSocketChannel.class)
                             .childHandler(new RpcServerInitializer(serviceMap, threadPoolExecutor))
                             .option(ChannelOption.SO_BACKLOG, 128)
                             .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -57,10 +58,12 @@ public class NettyServer implements Server {
                     ChannelFuture future = bootstrap.bind(host, port).sync();
 
                     if (serviceRegistry != null) {
-                        serviceRegistry.registerService(host, port, serviceMap);
+                        serviceRegistry.registerService(host, port, serviceMap.keySet());
                     }
                     logger.info("Server started on port {}", port);
-                    future.channel().closeFuture().sync();
+                    future.channel()
+                            .closeFuture()
+                            .sync();
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
                         logger.info("Rpc server remoting server stop");

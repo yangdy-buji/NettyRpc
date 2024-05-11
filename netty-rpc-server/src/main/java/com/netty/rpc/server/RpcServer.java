@@ -29,18 +29,18 @@ public class RpcServer extends NettyServer implements ApplicationContextAware, I
                 RpcService rpcService = serviceBean.getClass().getAnnotation(RpcService.class);
                 String interfaceName = rpcService.value().getName();
                 String version = rpcService.version();
-                super.addService(interfaceName, version, serviceBean);
+                addService(interfaceName, version, serviceBean);
             }
         }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        super.start();
+        start();
     }
 
     @Override
     public void destroy() {
-        super.stop();
+        stop();
     }
 }

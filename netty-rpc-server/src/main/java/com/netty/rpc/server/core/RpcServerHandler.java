@@ -71,14 +71,15 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         String methodName = request.getMethodName();
         Class<?>[] parameterTypes = request.getParameterTypes();
         Object[] parameters = request.getParameters();
-
-        logger.debug(serviceClass.getName());
-        logger.debug(methodName);
-        for (int i = 0; i < parameterTypes.length; ++i) {
-            logger.debug(parameterTypes[i].getName());
-        }
-        for (int i = 0; i < parameters.length; ++i) {
-            logger.debug(parameters[i].toString());
+        if(logger.isDebugEnabled()){
+            logger.debug(serviceClass.getName());
+            logger.debug(methodName);
+            for (int i = 0; i < parameterTypes.length; ++i) {
+                logger.debug(parameterTypes[i].getName());
+            }
+            for (int i = 0; i < parameters.length; ++i) {
+                logger.debug(parameters[i].toString());
+            }
         }
 
         // JDK reflect

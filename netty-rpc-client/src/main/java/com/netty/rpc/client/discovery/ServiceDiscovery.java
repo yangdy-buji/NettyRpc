@@ -4,10 +4,8 @@ import com.netty.rpc.client.connect.ConnectionManager;
 import com.netty.rpc.config.Constant;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.zookeeper.CuratorClient;
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,13 +64,13 @@ public class ServiceDiscovery {
             for (String node : nodeList) {
                 logger.debug("Service node: " + node);
                 byte[] bytes = curatorClient.getData(Constant.ZK_REGISTRY_PATH + "/" + node);
-                String json = new String(bytes);
+                String json = new String(bytes,StandardCharsets.UTF_8);
                 RpcProtocol rpcProtocol = RpcProtocol.fromJson(json);
                 dataList.add(rpcProtocol);
             }
             logger.debug("Service node data: {}", dataList);
             //Update the service info based on the latest data
-            UpdateConnectedServer(dataList);
+            updateConnectedServer(dataList);
         } catch (Exception e) {
             logger.error("Get node exception: ",e);
         }
@@ -86,7 +84,7 @@ public class ServiceDiscovery {
         updateConnectedServer(rpcProtocol, type);
     }
 
-    private void UpdateConnectedServer(List<RpcProtocol> dataList) {
+    private void updateConnectedServer(List<RpcProtocol> dataList) {
         ConnectionManager.getInstance().updateConnectedServer(dataList);
     }
 

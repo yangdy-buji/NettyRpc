@@ -10,12 +10,7 @@ public class ThreadPoolUtil {
                 60L,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000),
-                new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "netty-rpc-" + name + "-" + r.hashCode());
-                    }
-                },
+                r -> new Thread(r, "netty-rpc-" + name + "-" + r.hashCode()),
                 new ThreadPoolExecutor.AbortPolicy());
 
         return serverHandlerPool;

@@ -5,15 +5,14 @@ import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;
 import com.netty.rpc.util.ServiceUtil;
 import com.netty.rpc.zookeeper.CuratorClient;
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * 服务注册
@@ -30,10 +29,10 @@ public class ServiceRegistry {
         this.curatorClient = new CuratorClient(registryAddress, 5000);
     }
 
-    public void registerService(String host, int port, Map<String, Object> serviceMap) {
+    public void registerService(String host, int port, Set<String> services) {
         // Register service info
         List<RpcServiceInfo> serviceInfoList = new ArrayList<>();
-        for (String key : serviceMap.keySet()) {
+        for (String key : services) {
             String[] serviceInfo = key.split(ServiceUtil.SERVICE_CONCAT_TOKEN);
             if (serviceInfo.length > 0) {
                 RpcServiceInfo rpcServiceInfo = new RpcServiceInfo();
@@ -55,7 +54,7 @@ public class ServiceRegistry {
             rpcProtocol.setPort(port);
             rpcProtocol.setServices(serviceInfoList);
             String serviceData = rpcProtocol.toJson();
-            byte[] bytes = serviceData.getBytes();
+            byte[] bytes = serviceData.getBytes(StandardCharsets.UTF_8);
             String path = Constant.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();
             path = this.curatorClient.createPathData(path, bytes);
             pathList.add(path);
@@ -64,13 +63,10 @@ public class ServiceRegistry {
             logger.error("Register service fail, exception: {}", e.getMessage());
         }
 
-        curatorClient.addConnectionStateListener(new ConnectionStateListener() {
-            @Override
-            public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                if (connectionState == ConnectionState.RECONNECTED) {
-                    logger.info("Connection state: {}, register service after reconnected", connectionState);
-                    registerService(host, port, serviceMap);
-                }
+        curatorClient.addConnectionStateListener((curatorFramework, connectionState) -> {
+            if (connectionState == ConnectionState.RECONNECTED) {
+                logger.info("Connection state: {}, register service after reconnected", connectionState);
+                registerService(host, port, services);
             }
         });
     }

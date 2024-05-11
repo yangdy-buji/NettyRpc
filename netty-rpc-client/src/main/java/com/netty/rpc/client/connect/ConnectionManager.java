@@ -31,7 +31,7 @@ public class ConnectionManager {
 
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
-            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
+            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000));
 
     private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
