@@ -5,7 +5,7 @@ import com.netty.rpc.client.handler.RpcClientInitializer;
 import com.netty.rpc.client.route.RpcLoadBalance;
 import com.netty.rpc.client.route.impl.RpcLoadBalanceRoundRobin;
 import com.netty.rpc.protocol.RpcProtocol;
-import com.netty.rpc.protocol.RpcServiceInfo;
+import com.netty.rpc.protocol.ServiceInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -112,31 +112,30 @@ public class ConnectionManager {
         }
         rpcProtocolSet.add(rpcProtocol);
         logger.info("New service node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
-        for (RpcServiceInfo serviceProtocol : rpcProtocol.getServices()) {
+        for (ServiceInfo serviceProtocol : rpcProtocol.getServices()) {
             logger.info("New service info, name: {}, version: {}", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
         }
         final InetSocketAddress remotePeer = new InetSocketAddress(rpcProtocol.getHost(), rpcProtocol.getPort());
-        threadPoolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                Bootstrap b = new Bootstrap();
-                b.group(eventLoopGroup)
-                        .channel(NioSocketChannel.class)
-                        .handler(new RpcClientInitializer());
+        threadPoolExecutor.submit(() -> {
+            Bootstrap b = new Bootstrap();
+            b.group(eventLoopGroup)
+                    .channel(NioSocketChannel.class)
+                    .handler(new RpcClientInitializer());
 
-                ChannelFuture channelFuture = b.connect(remotePeer);
-                channelFuture.addListener((ChannelFutureListener) channelFuture1 -> {
-                    if (channelFuture1.isSuccess()) {
-                        logger.info("Successfully connect to remote server, remote peer = {}" ,remotePeer);
-                        RpcClientHandler handler = channelFuture1.channel().pipeline().get(RpcClientHandler.class);
-                        connectedServerNodes.put(rpcProtocol, handler);
-                        handler.setRpcProtocol(rpcProtocol);
-                        signalAvailableHandler();
-                    } else {
-                        logger.error("Can not connect to remote server, remote peer = {}", remotePeer);
-                    }
-                });
-            }
+            ChannelFuture channelFuture = b.connect(remotePeer);
+            channelFuture.addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    logger.info("Successfully connect to remote server, remote peer = {}" ,remotePeer);
+                    RpcClientHandler handler = future.channel()
+                            .pipeline()
+                            .get(RpcClientHandler.class);
+                    connectedServerNodes.put(rpcProtocol, handler);
+                    handler.setRpcProtocol(rpcProtocol);
+                    signalAvailableHandler();
+                } else {
+                    logger.error("Can not connect to remote server, remote peer = {}", remotePeer);
+                }
+            });
         });
     }
 

@@ -2,13 +2,9 @@ package com.netty.rpc.protocol;
 
 import com.netty.rpc.util.JsonUtil;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.io.Serializable;
-import java.util.Objects;
 @Data
-public class RpcServiceInfo implements Serializable {
+public class ServiceInfo{
     // interface name
     private String serviceName;
     // service version

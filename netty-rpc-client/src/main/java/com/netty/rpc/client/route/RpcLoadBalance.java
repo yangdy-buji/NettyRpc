@@ -2,7 +2,7 @@ package com.netty.rpc.client.route;
 
 import com.netty.rpc.client.handler.RpcClientHandler;
 import com.netty.rpc.protocol.RpcProtocol;
-import com.netty.rpc.protocol.RpcServiceInfo;
+import com.netty.rpc.protocol.ServiceInfo;
 import com.netty.rpc.util.ServiceUtil;
 import org.apache.commons.collections4.map.HashedMap;
 
@@ -19,7 +19,7 @@ public abstract class RpcLoadBalance {
         Map<String, List<RpcProtocol>> serviceMap = new HashedMap<>();
         if (connectedServerNodes != null && connectedServerNodes.size() > 0) {
             for (RpcProtocol rpcProtocol : connectedServerNodes.keySet()) {
-                for (RpcServiceInfo serviceInfo : rpcProtocol.getServices()) {
+                for (ServiceInfo serviceInfo : rpcProtocol.getServices()) {
                     String serviceKey = ServiceUtil.makeServiceKey(serviceInfo.getServiceName(), serviceInfo.getVersion());
                     List<RpcProtocol> rpcProtocolList = serviceMap.get(serviceKey);
                     if (rpcProtocolList == null) {

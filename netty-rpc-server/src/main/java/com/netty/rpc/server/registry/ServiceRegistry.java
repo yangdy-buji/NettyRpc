@@ -2,7 +2,7 @@ package com.netty.rpc.server.registry;
 
 import com.netty.rpc.config.Constant;
 import com.netty.rpc.protocol.RpcProtocol;
-import com.netty.rpc.protocol.RpcServiceInfo;
+import com.netty.rpc.protocol.ServiceInfo;
 import com.netty.rpc.util.ServiceUtil;
 import com.netty.rpc.zookeeper.CuratorClient;
 import org.apache.curator.framework.state.ConnectionState;
@@ -31,22 +31,14 @@ public class ServiceRegistry {
 
     public void registerService(String host, int port, Set<String> services) {
         // Register service info
-        List<RpcServiceInfo> serviceInfoList = new ArrayList<>();
+        List<ServiceInfo> serviceInfoList = new ArrayList<>();
         for (String key : services) {
             String[] serviceInfo = key.split(ServiceUtil.SERVICE_CONCAT_TOKEN);
-            if (serviceInfo.length > 0) {
-                RpcServiceInfo rpcServiceInfo = new RpcServiceInfo();
-                rpcServiceInfo.setServiceName(serviceInfo[0]);
-                if (serviceInfo.length == 2) {
-                    rpcServiceInfo.setVersion(serviceInfo[1]);
-                } else {
-                    rpcServiceInfo.setVersion("");
-                }
-                logger.info("Register new service: {} ", key);
-                serviceInfoList.add(rpcServiceInfo);
-            } else {
-                logger.warn("Can not get service name and version: {} ", key);
-            }
+            ServiceInfo rpcServiceInfo = new ServiceInfo();
+            rpcServiceInfo.setServiceName(serviceInfo[0]);
+            rpcServiceInfo.setVersion(serviceInfo[1]);
+            logger.info("Register new service: {} ", key);
+            serviceInfoList.add(rpcServiceInfo);
         }
         try {
             RpcProtocol rpcProtocol = new RpcProtocol();

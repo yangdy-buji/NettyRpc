@@ -42,13 +42,9 @@ public class ServiceDiscovery {
                         getServiceAndUpdateServer();
                         break;
                     case CHILD_ADDED:
-                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_ADDED);
-                        break;
                     case CHILD_UPDATED:
-                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_UPDATED);
-                        break;
                     case CHILD_REMOVED:
-                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_REMOVED);
+                        getServiceAndUpdateServer(childData, type);
                         break;
                 }
             });

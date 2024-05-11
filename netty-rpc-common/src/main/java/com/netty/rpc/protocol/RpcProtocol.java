@@ -1,22 +1,22 @@
 package com.netty.rpc.protocol;
 
 import com.netty.rpc.util.JsonUtil;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-@Getter
-@Setter
-public class RpcProtocol implements Serializable {
+@Data
+public class RpcProtocol{
     private static final long serialVersionUID = -1102180003395190700L;
     // service host
     private String host;
     // service port
     private int port;
     // service info list
-    private List<RpcServiceInfo> services;
+    private List<ServiceInfo> services;
 
     public String toJson() {
         String json = JsonUtil.objectToJson(this);
@@ -37,7 +37,7 @@ public class RpcProtocol implements Serializable {
                 isListEquals(services, that.getServices());
     }
 
-    private boolean isListEquals(List<RpcServiceInfo> thisList, List<RpcServiceInfo> thatList) {
+    private boolean isListEquals(List<ServiceInfo> thisList, List<ServiceInfo> thatList) {
         if (thisList == null && thatList == null) {
             return true;
         }
@@ -49,14 +49,5 @@ public class RpcProtocol implements Serializable {
         return thisList.containsAll(thatList) && thatList.containsAll(thisList);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(host, port, services.hashCode());
-    }
-
-    @Override
-    public String toString() {
-        return toJson();
-    }
 
 }
