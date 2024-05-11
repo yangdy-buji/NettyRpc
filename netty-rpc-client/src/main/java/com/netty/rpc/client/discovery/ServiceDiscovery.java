@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ServiceDiscovery {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
-    private CuratorClient curatorClient;
+    private final CuratorClient curatorClient;
 
     public ServiceDiscovery(String registryAddress) {
         this.curatorClient = new CuratorClient(registryAddress);
@@ -35,30 +35,27 @@ public class ServiceDiscovery {
             logger.info("Get initial service info");
             getServiceAndUpdateServer();
             // Add watch listener
-            curatorClient.watchPathChildrenNode(Constant.ZK_REGISTRY_PATH, new PathChildrenCacheListener() {
-                @Override
-                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
-                    PathChildrenCacheEvent.Type type = pathChildrenCacheEvent.getType();
-                    ChildData childData = pathChildrenCacheEvent.getData();
-                    switch (type) {
-                        case CONNECTION_RECONNECTED:
-                            logger.info("Reconnected to zk, try to get latest service list");
-                            getServiceAndUpdateServer();
-                            break;
-                        case CHILD_ADDED:
-                            getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_ADDED);
-                            break;
-                        case CHILD_UPDATED:
-                            getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_UPDATED);
-                            break;
-                        case CHILD_REMOVED:
-                            getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_REMOVED);
-                            break;
-                    }
+            curatorClient.watchPathChildrenNode(Constant.ZK_REGISTRY_PATH, (curatorFramework, pathChildrenCacheEvent) -> {
+                PathChildrenCacheEvent.Type type = pathChildrenCacheEvent.getType();
+                ChildData childData = pathChildrenCacheEvent.getData();
+                switch (type) {
+                    case CONNECTION_RECONNECTED:
+                        logger.info("Reconnected to zk, try to get latest service list");
+                        getServiceAndUpdateServer();
+                        break;
+                    case CHILD_ADDED:
+                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_ADDED);
+                        break;
+                    case CHILD_UPDATED:
+                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_UPDATED);
+                        break;
+                    case CHILD_REMOVED:
+                        getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_REMOVED);
+                        break;
                 }
             });
         } catch (Exception ex) {
-            logger.error("Watch node exception: " + ex.getMessage());
+            logger.error("Watch node exception: " , ex);
         }
     }
 
@@ -77,7 +74,7 @@ public class ServiceDiscovery {
             //Update the service info based on the latest data
             UpdateConnectedServer(dataList);
         } catch (Exception e) {
-            logger.error("Get node exception: " + e.getMessage());
+            logger.error("Get node exception: ",e);
         }
     }
 

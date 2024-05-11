@@ -1,8 +1,8 @@
 package com.app.test.service;
 
-import com.netty.rpc.annotation.NettyRpcService;
+import com.netty.rpc.annotation.RpcService;
 
-@NettyRpcService(value = HelloService.class, version = "2.0")
+@RpcService(value = HelloService.class, version = "2.0")
 public class HelloServiceImpl2 implements HelloService {
 
     public HelloServiceImpl2() {

@@ -113,14 +113,11 @@ public class RpcFuture implements Future<Object> {
 
     private void runCallback(final AsyncRPCCallback callback) {
         final RpcResponse res = this.response;
-        RpcClient.submit(new Runnable() {
-            @Override
-            public void run() {
-                if (!res.isError()) {
-                    callback.success(res.getResult());
-                } else {
-                    callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
-                }
+        RpcClient.submit(() -> {
+            if (!res.isError()) {
+                callback.success(res.getResult());
+            } else {
+                callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
             }
         });
     }

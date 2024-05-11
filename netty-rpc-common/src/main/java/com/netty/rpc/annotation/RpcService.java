@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Component
-public @interface NettyRpcService {
+public @interface RpcService {
     Class<?> value();
 
-    String version() default "";
+    String version() default "1.0";
 }

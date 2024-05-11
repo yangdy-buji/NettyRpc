@@ -41,26 +41,19 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             return;
         }
 
-        serverHandlerPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Receive request " + request.getRequestId());
-                RpcResponse response = new RpcResponse();
-                response.setRequestId(request.getRequestId());
-                try {
-                    Object result = handle(request);
-                    response.setResult(result);
-                } catch (Throwable t) {
-                    response.setError(t.toString());
-                    logger.error("RPC Server handle request error", t);
-                }
-                ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                        logger.info("Send response for request " + request.getRequestId());
-                    }
-                });
+        serverHandlerPool.execute(() -> {
+            logger.info("Receive request {}" ,request.getRequestId());
+            RpcResponse response = new RpcResponse();
+            response.setRequestId(request.getRequestId());
+            try {
+                Object result = handle(request);
+                response.setResult(result);
+            } catch (Throwable t) {
+                response.setError(t.toString());
+                logger.error("RPC Server handle request error", t);
             }
+            ctx.writeAndFlush(response)
+                    .addListener((ChannelFutureListener) channelFuture -> logger.info("Send response for request {}" , request.getRequestId()));
         });
     }
 

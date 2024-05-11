@@ -101,18 +101,18 @@ public class ConnectionManager {
         } else if (type == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
             removeAndCloseHandler(rpcProtocol);
         } else {
-            throw new IllegalArgumentException("Unknow type:" + type);
+            throw new IllegalArgumentException("Unknown type:" + type);
         }
     }
 
     private void connectServerNode(RpcProtocol rpcProtocol) {
-        if (rpcProtocol.getServiceInfoList() == null || rpcProtocol.getServiceInfoList().isEmpty()) {
+        if (rpcProtocol.getServices() == null || rpcProtocol.getServices().isEmpty()) {
             logger.info("No service on node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
             return;
         }
         rpcProtocolSet.add(rpcProtocol);
         logger.info("New service node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
-        for (RpcServiceInfo serviceProtocol : rpcProtocol.getServiceInfoList()) {
+        for (RpcServiceInfo serviceProtocol : rpcProtocol.getServices()) {
             logger.info("New service info, name: {}, version: {}", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
         }
         final InetSocketAddress remotePeer = new InetSocketAddress(rpcProtocol.getHost(), rpcProtocol.getPort());
@@ -125,18 +125,15 @@ public class ConnectionManager {
                         .handler(new RpcClientInitializer());
 
                 ChannelFuture channelFuture = b.connect(remotePeer);
-                channelFuture.addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-                        if (channelFuture.isSuccess()) {
-                            logger.info("Successfully connect to remote server, remote peer = " + remotePeer);
-                            RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            connectedServerNodes.put(rpcProtocol, handler);
-                            handler.setRpcProtocol(rpcProtocol);
-                            signalAvailableHandler();
-                        } else {
-                            logger.error("Can not connect to remote server, remote peer = " + remotePeer);
-                        }
+                channelFuture.addListener((ChannelFutureListener) channelFuture1 -> {
+                    if (channelFuture1.isSuccess()) {
+                        logger.info("Successfully connect to remote server, remote peer = {}" ,remotePeer);
+                        RpcClientHandler handler = channelFuture1.channel().pipeline().get(RpcClientHandler.class);
+                        connectedServerNodes.put(rpcProtocol, handler);
+                        handler.setRpcProtocol(rpcProtocol);
+                        signalAvailableHandler();
+                    } else {
+                        logger.error("Can not connect to remote server, remote peer = {}", remotePeer);
                     }
                 });
             }
@@ -164,7 +161,7 @@ public class ConnectionManager {
 
     public RpcClientHandler chooseHandler(String serviceKey) throws Exception {
         int size = connectedServerNodes.values().size();
-        while (isRunning && size <= 0) {
+        while (isRunning && size == 0) {
             try {
                 waitingForHandler();
                 size = connectedServerNodes.values().size();

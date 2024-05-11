@@ -53,7 +53,7 @@ public class ServiceRegistry {
             RpcProtocol rpcProtocol = new RpcProtocol();
             rpcProtocol.setHost(host);
             rpcProtocol.setPort(port);
-            rpcProtocol.setServiceInfoList(serviceInfoList);
+            rpcProtocol.setServices(serviceInfoList);
             String serviceData = rpcProtocol.toJson();
             byte[] bytes = serviceData.getBytes();
             String path = Constant.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();

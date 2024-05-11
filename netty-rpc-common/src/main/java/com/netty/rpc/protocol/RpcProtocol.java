@@ -13,7 +13,7 @@ public class RpcProtocol implements Serializable {
     // service port
     private int port;
     // service info list
-    private List<RpcServiceInfo> serviceInfoList;
+    private List<RpcServiceInfo> services;
 
     public String toJson() {
         String json = JsonUtil.objectToJson(this);
@@ -31,7 +31,7 @@ public class RpcProtocol implements Serializable {
         RpcProtocol that = (RpcProtocol) o;
         return port == that.port &&
                 Objects.equals(host, that.host) &&
-                isListEquals(serviceInfoList, that.getServiceInfoList());
+                isListEquals(services, that.getServices());
     }
 
     private boolean isListEquals(List<RpcServiceInfo> thisList, List<RpcServiceInfo> thatList) {
@@ -48,7 +48,7 @@ public class RpcProtocol implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, port, serviceInfoList.hashCode());
+        return Objects.hash(host, port, services.hashCode());
     }
 
     @Override
@@ -72,11 +72,11 @@ public class RpcProtocol implements Serializable {
         this.port = port;
     }
 
-    public List<RpcServiceInfo> getServiceInfoList() {
-        return serviceInfoList;
+    public List<RpcServiceInfo> getServices() {
+        return services;
     }
 
-    public void setServiceInfoList(List<RpcServiceInfo> serviceInfoList) {
-        this.serviceInfoList = serviceInfoList;
+    public void setServices(List<RpcServiceInfo> services) {
+        this.services = services;
     }
 }

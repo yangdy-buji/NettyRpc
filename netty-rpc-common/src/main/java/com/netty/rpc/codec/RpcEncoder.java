@@ -30,7 +30,7 @@ public class RpcEncoder extends MessageToByteEncoder {
                 out.writeInt(data.length);
                 out.writeBytes(data);
             } catch (Exception ex) {
-                logger.error("Encode error: " + ex.toString());
+                logger.error("Encode error: " , ex);
             }
         }
     }

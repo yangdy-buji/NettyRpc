@@ -81,7 +81,7 @@ public class JsonUtil {
 
     public static <type> type jsonToObjectHashMap(String json,
                                                   Class<?> keyClass, Class<?> valueClass) {
-        type obj = null;
+        type obj;
         JavaType javaType = objMapper.getTypeFactory().constructParametricType(HashMap.class, keyClass, valueClass);
         try {
             obj = objMapper.readValue(json, javaType);

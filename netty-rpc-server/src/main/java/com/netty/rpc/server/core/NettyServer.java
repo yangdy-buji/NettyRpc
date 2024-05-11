@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class NettyServer extends Server {
+public class NettyServer implements Server {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     private Thread thread;
