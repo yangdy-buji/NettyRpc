@@ -45,7 +45,7 @@ public class ServiceTest2 {
 
     @Test
     public void serviceTest1() throws Exception {
-        RpcService<HelloService, String, RpcFunction<HelloService, String>> helloService =
+        RpcService<HelloService, RpcFunction<HelloService, String>> helloService =
                 rpcClient.createAsyncService(HelloService.class, "1.0");
         RpcFuture result = helloService.call(HelloService::hello, "World");
         System.out.println(result.get());
@@ -54,7 +54,7 @@ public class ServiceTest2 {
 
     @Test
     public void serviceTest2() throws Exception {
-        RpcService<HelloService, String, RpcFunction2<HelloService, String, Integer>> helloService2 =
+        RpcService<HelloService, RpcFunction2<HelloService, String, Integer>> helloService2 =
                 rpcClient.createAsyncService(HelloService.class, "1.0");
         RpcFuture result = helloService2.call(HelloService::hello, "Tom", 2);
         System.out.println(result.get());
@@ -63,7 +63,7 @@ public class ServiceTest2 {
 
     @Test
     public void serviceTest3() throws Exception {
-        RpcService<PersonService, String, RpcFunction2<PersonService, String, Integer>> helloService2 =
+        RpcService<PersonService, RpcFunction2<PersonService, String, Integer>> helloService2 =
                 rpcClient.createAsyncService(PersonService.class, "");
         Integer num = 2;
         RpcFuture result = helloService2.call(PersonService::callPerson, "Tom", num);

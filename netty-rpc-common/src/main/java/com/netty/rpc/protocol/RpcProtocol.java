@@ -1,14 +1,13 @@
 package com.netty.rpc.protocol;
 
 import com.netty.rpc.util.JsonUtil;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-@Data
+@Getter
+@Setter
 public class RpcProtocol{
     private static final long serialVersionUID = -1102180003395190700L;
     // service host
@@ -27,6 +26,10 @@ public class RpcProtocol{
         return JsonUtil.jsonToObject(json, RpcProtocol.class);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port, services.hashCode());
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

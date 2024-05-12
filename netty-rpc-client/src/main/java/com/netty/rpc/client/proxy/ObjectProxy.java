@@ -7,6 +7,7 @@ import com.netty.rpc.codec.RpcRequest;
 import com.netty.rpc.util.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -15,7 +16,7 @@ import java.util.UUID;
 /**
  * Created by luxiaoxun on 2016-03-16.
  */
-public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, SerializableFunction<T>> {
+public class ObjectProxy<T> implements InvocationHandler, RpcService<T, SerializableFunction<T>> {
     private static final Logger logger = LoggerFactory.getLogger(ObjectProxy.class);
     private Class<T> clazz;
     private String version;
@@ -57,7 +58,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
                 logger.debug(method.getParameterTypes()[i].getName());
             }
             for (int i = 0; i < args.length; ++i) {
-                logger.debug(args[i].toString());
+                logger.debug(null == args[i] ? "null" : args[i].toString());
             }
         }
 
@@ -92,13 +93,8 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         request.setMethodName(methodName);
         request.setParameters(args);
         request.setVersion(version);
-        Class[] parameterTypes = new Class[args.length];
-        // Get the right class type
-        for (int i = 0; i < args.length; i++) {
-            parameterTypes[i] = getClassType(args[i]);
-        }
+        Class[] parameterTypes = getParameterTypes(className, methodName, args);
         request.setParameterTypes(parameterTypes);
-
         // Debug
         if (logger.isDebugEnabled()) {
             logger.debug(className);
@@ -107,11 +103,29 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
                 logger.debug(parameterTypes[i].getName());
             }
             for (int i = 0; i < args.length; ++i) {
-                logger.debug(args[i].toString());
+                logger.debug(null == args[i] ? "null" : args[i].toString());
             }
         }
 
         return request;
+    }
+
+    private Class[] getParameterTypes(String className, String methodName, Object... args) {
+        try {
+            Method method = ClassUtils.getMethodIfAvailable(ClassUtils.forName(className, null), methodName);
+            if (null != method) {
+                return method.getParameterTypes();
+            }
+        } catch (ClassNotFoundException e) {
+            logger.warn("no method names {} is found in class {}",methodName,className,e);
+        }
+        Class[] parameterTypes = new Class[args.length];
+        // Get the right class type
+        // FIXME 如果参数为空会导致npe
+        for (int i = 0; i < args.length; i++) {
+            parameterTypes[i] = getClassType(args[i]);
+        }
+        return parameterTypes;
     }
 
     private Class<?> getClassType(Object obj) {

@@ -29,6 +29,17 @@ public class NettyServer implements Server {
         this.serviceRegistry = new ServiceRegistry(registryAddress);
     }
 
+    public void addService(String interfaceName, Object serviceBean) {
+        addService(interfaceName, ServiceUtil.DEFAULT_VERSION, serviceBean);
+    }
+
+    public <T> void addService(Class<T> interfaceName, T serviceBean) {
+        addService(interfaceName.getName(), ServiceUtil.DEFAULT_VERSION, serviceBean);
+    }
+
+    public <T> void addService(Class<T> interfaceName,String version, T serviceBean) {
+        addService(interfaceName.getName(), version, serviceBean);
+    }
     public void addService(String interfaceName, String version, Object serviceBean) {
         logger.info("Adding service, interface: {}, version: {}, bean：{}", interfaceName, version, serviceBean);
         String serviceKey = ServiceUtil.makeServiceKey(interfaceName, version);

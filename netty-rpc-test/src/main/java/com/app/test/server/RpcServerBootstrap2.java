@@ -17,7 +17,7 @@ public class RpcServerBootstrap2 {
         HelloService helloService2 = new HelloServiceImpl2();
         rpcServer.addService(HelloService.class.getName(), "2.0", helloService2);
         PersonService personService = new PersonServiceImpl();
-        rpcServer.addService(PersonService.class.getName(), "", personService);
+        rpcServer.addService(PersonService.class.getName(), null, personService);
         try {
             rpcServer.start();
         } catch (Exception ex) {

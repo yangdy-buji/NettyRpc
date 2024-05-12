@@ -24,10 +24,9 @@ public class ServiceDiscovery {
 
     public ServiceDiscovery(String registryAddress) {
         this.curatorClient = new CuratorClient(registryAddress);
-        discoveryService();
     }
 
-    private void discoveryService() {
+    public void discoveryService() {
         try {
             // Get initial service info
             logger.info("Get initial service info");

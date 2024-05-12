@@ -15,11 +15,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RpcCallbackTest {
     public static void main(String[] args) {
-        final RpcClient rpcClient = new RpcClient("10.217.59.164:2181");
+        final RpcClient rpcClient = new RpcClient("localhost:2181");
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         try {
-            RpcService client = rpcClient.createAsyncService(PersonService.class, "");
+            RpcService client = rpcClient.createAsyncService(PersonService.class);
             int num = 5;
             RpcFuture helloPersonFuture = client.call("callPerson", "Jerry", num);
             helloPersonFuture.addCallback(new AsyncRPCCallback() {

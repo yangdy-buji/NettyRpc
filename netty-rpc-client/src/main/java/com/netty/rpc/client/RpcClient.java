@@ -1,10 +1,11 @@
 package com.netty.rpc.client;
 
 import com.netty.rpc.annotation.RpcAutowired;
-import com.netty.rpc.client.proxy.RpcService;
-import com.netty.rpc.client.proxy.ObjectProxy;
 import com.netty.rpc.client.connect.ConnectionManager;
 import com.netty.rpc.client.discovery.ServiceDiscovery;
+import com.netty.rpc.client.proxy.ObjectProxy;
+import com.netty.rpc.client.proxy.RpcService;
+import com.netty.rpc.util.ServiceUtil;
 import com.netty.rpc.util.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -30,21 +33,30 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
 
     private static ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.createThreadPool(RpcClient.class.getSimpleName(), 8, 16);
 
+    private static Map<String, ObjectProxy> proxies = new ConcurrentHashMap<>();
+
+    private static Map<String, Object> services = new ConcurrentHashMap<>();
+
     public RpcClient(String address) {
         this.serviceDiscovery = new ServiceDiscovery(address);
+        threadPoolExecutor.submit(() -> this.serviceDiscovery.discoveryService());
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, P> T createService(Class<T> interfaceClass, String version) {
-        return (T) Proxy.newProxyInstance(
-                interfaceClass.getClassLoader(),
+    public static <T> T createService(Class<T> interfaceClass, String version) {
+        String key = ServiceUtil.makeServiceKey(interfaceClass.getName(), version);
+
+        return (T) services.computeIfAbsent(key, k -> Proxy.newProxyInstance(interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new ObjectProxy<T, P>(interfaceClass, version)
+                proxies.computeIfAbsent(key, p -> new ObjectProxy(interfaceClass, version)))
         );
     }
-
-    public static <T, P> RpcService createAsyncService(Class<T> interfaceClass, String version) {
-        return new ObjectProxy<T, P>(interfaceClass, version);
+    public static RpcService createAsyncService(Class interfaceClass) {
+        return createAsyncService(interfaceClass,ServiceUtil.DEFAULT_VERSION);
+    }
+    public static RpcService createAsyncService(Class interfaceClass, String version) {
+        String key = ServiceUtil.makeServiceKey(interfaceClass.getName(), version);
+        return proxies.computeIfAbsent(key, k -> new ObjectProxy(interfaceClass, version));
     }
 
     public static void submit(Runnable task) {
@@ -58,7 +70,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         this.stop();
     }
 

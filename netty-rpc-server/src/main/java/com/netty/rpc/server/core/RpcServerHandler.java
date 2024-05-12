@@ -13,6 +13,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -42,7 +43,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         }
 
         serverHandlerPool.execute(() -> {
-            logger.info("Receive request {}" ,request.getRequestId());
+            logger.info("<< {}" ,request.getRequestId());
             RpcResponse response = new RpcResponse();
             response.setRequestId(request.getRequestId());
             try {
@@ -53,7 +54,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 logger.error("RPC Server handle request error", t);
             }
             ctx.writeAndFlush(response)
-                    .addListener((ChannelFutureListener) channelFuture -> logger.info("Send response for request {}" , request.getRequestId()));
+                    .addListener(channelFuture -> logger.info(">> {}" , request.getRequestId()));
         });
     }
 
@@ -78,22 +79,22 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 logger.debug(parameterTypes[i].getName());
             }
             for (int i = 0; i < parameters.length; ++i) {
-                logger.debug(parameters[i].toString());
+                logger.debug(String.valueOf(parameters[i]));
             }
         }
 
         // JDK reflect
-//        Method method = serviceClass.getMethod(methodName, parameterTypes);
-//        method.setAccessible(true);
-//        return method.invoke(serviceBean, parameters);
+        Method method = serviceClass.getMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+        return method.invoke(serviceBean, parameters);
 
         // Cglib reflect
-        FastClass serviceFastClass = FastClass.create(serviceClass);
+//        FastClass serviceFastClass = FastClass.create(serviceClass);
 //        FastMethod serviceFastMethod = serviceFastClass.getMethod(methodName, parameterTypes);
 //        return serviceFastMethod.invoke(serviceBean, parameters);
         // for higher-performance
-        int methodIndex = serviceFastClass.getIndex(methodName, parameterTypes);
-        return serviceFastClass.invoke(methodIndex, serviceBean, parameters);
+//        int methodIndex = serviceFastClass.getIndex(methodName, parameterTypes);
+//        return serviceFastClass.invoke(methodIndex, serviceBean, parameters);
     }
 
     @Override

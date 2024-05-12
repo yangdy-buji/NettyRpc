@@ -34,15 +34,14 @@ public class ConnectionManager {
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000));
 
     private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
-    private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
+    private Set<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
     private long waitTimeout = 5000;
     private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
-    private ConnectionManager() {
-    }
+    private ConnectionManager() {}
 
     private static class SingletonHolder {
         private static final ConnectionManager instance = new ConnectionManager();
@@ -58,7 +57,7 @@ public class ConnectionManager {
         // Actually client should only care about the service it is using
         if (serviceList != null && serviceList.size() > 0) {
             // Update local server nodes cache
-            HashSet<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
+            Set<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
             for (int i = 0; i < serviceList.size(); ++i) {
                 RpcProtocol rpcProtocol = serviceList.get(i);
                 serviceSet.add(rpcProtocol);

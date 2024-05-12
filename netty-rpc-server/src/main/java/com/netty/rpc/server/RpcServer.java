@@ -35,7 +35,7 @@ public class RpcServer extends NettyServer implements ApplicationContextAware, I
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         start();
     }
 
